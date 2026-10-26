@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>생명줄 설치 매듭법 교육</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Malgun Gothic", "맑은 고딕", sans-serif;
+    background: #f3f5f8;
+    color: #222;
+  }
+  header {
+    background: #1428a0;
+    color: #fff;
+    padding: 18px 24px;
+  }
+  header h1 { margin: 0; font-size: 22px; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 20px; }
+
+  /* 매듭 카드 */
+  .knot-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  }
+  .knot-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .knot-head h2 { margin: 0; font-size: 18px; }
+
+  .play-btn {
+    padding: 10px 22px;
+    font-size: 15px;
+    font-weight: bold;
+    border: 2px solid #1428a0;
+    background: #1428a0;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .play-btn:hover { opacity: .9; }
+  .play-btn.open { background: #fff; color: #1428a0; }
+
+  /* 영상 영역 (기본 숨김) */
+  .video-wrap { display: none; margin-top: 14px; }
+  .video-wrap.show { display: block; }
+
+  video {
+    width: 100%;
+    border-radius: 8px;
+    background: #000;
+  }
+
+  /* 음소거/볼륨 버튼 숨김 */
+  video::-webkit-media-controls-mute-button,
+  video::-webkit-media-controls-volume-slider,
+  video::-webkit-media-controls-volume-control-container {
+    display: none !important;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>생명줄 설치 매듭법 교육</h1>
+</header>
+
+<div class="container">
+
+  <!-- 1. 8자 매듭 -->
+  <section class="knot-card">
+    <div class="knot-head">
+      <h2>8자 매듭 (처음, 끝)</h2>
+      <button type="button" class="play-btn" data-target="wrap-figure8">영상보기</button>
+    </div>
+    <div class="video-wrap" id="wrap-figure8">
+      <video id="video-figure8"
+             src="video/knot_figure8.mp4"
+             data-duration="25"
+             muted playsinline controls
+             controlsList="nodownload noremoteplayback"
+             preload="metadata"></video>
+    </div>
+  </section>
+
+  <!-- 2. 클로브히치 -->
+  <section class="knot-card">
+    <div class="knot-head">
+      <h2>클로브히치 (중간 매듭)</h2>
+      <button type="button" class="play-btn" data-target="wrap-clovehitch">영상보기</button>
+    </div>
+    <div class="video-wrap" id="wrap-clovehitch">
+      <video id="video-clovehitch"
+             src="video/knot_clovehitch.mp4"
+             data-duration="17"
+             muted playsinline controls
+             controlsList="nodownload noremoteplayback"
+             preload="metadata"></video>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  var buttons = document.querySelectorAll('.play-btn');
+  var videos  = document.querySelectorAll('video');
+
+  // 소리 항상 끄기
+  videos.forEach(function (v) {
+    v.muted = true;
+    v.volume = 0;
+    v.addEventListener('volumechange', function () {
+      if (!v.muted || v.volume !== 0) {
+        v.muted = true;
+        v.volume = 0;
+      }
+    });
+
+    // 영상 길이 확인 (화면에는 표시하지 않고 콘솔에만 경고)
+    v.addEventListener('loadedmetadata', function () {
+      var expected = parseFloat(v.dataset.duration);
+      if (expected && Math.abs(v.duration - expected) > 1) {
+        console.warn(v.id + ' 길이 불일치: 설정 ' + expected + '초 / 실제 ' +
+                     Math.round(v.duration) + '초');
+      }
+    });
+  });
+
+  // 영상 닫기
+  function closeCard(btn) {
+    var wrap = document.getElementById(btn.dataset.target);
+    var video = wrap.querySelector('video');
+    video.pause();
+    video.currentTime = 0;
+    wrap.classList.remove('show');
+    btn.classList.remove('open');
+    btn.textContent = '영상보기';
+  }
+
+  // 영상 열기
+  function openCard(btn) {
+    var wrap = document.getElementById(btn.dataset.target);
+    var video = wrap.querySelector('video');
+    wrap.classList.add('show');
+    btn.classList.add('open');
+    btn.textContent = '영상닫기';
+    video.muted = true;
+    var p = video.play();
+    if (p && p.catch) { p.catch(function () { btn.textContent = '재생 버튼을 눌러주세요'; }); }
+  }
+
+  buttons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var isOpen = btn.classList.contains('open');
+
+      // 다른 영상은 모두 닫기
+      buttons.forEach(function (other) {
+        if (other !== btn) { closeCard(other); }
+      });
+
+      if (isOpen) { closeCard(btn); } else { openCard(btn); }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
