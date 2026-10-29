@@ -86,7 +86,7 @@
     <div class="video-wrap" id="wrap-figure8">
       <video id="video-figure8"
              src="video/knot_figure8.mp4"
-             data-duration="25"
+             data-duration="68.6"
              muted playsinline controls
              controlsList="nodownload noremoteplayback"
              preload="metadata"></video>
@@ -102,7 +102,7 @@
     <div class="video-wrap" id="wrap-clovehitch">
       <video id="video-clovehitch"
              src="video/knot_clovehitch.mp4"
-             data-duration="17"
+             data-duration="19"
              muted playsinline controls
              controlsList="nodownload noremoteplayback"
              preload="metadata"></video>
@@ -128,6 +128,18 @@
     });
 
     // 영상 길이 확인 (화면에는 표시하지 않고 콘솔에만 경고)
+    v.addEventListener('error', function () {
+      console.error('영상 로딩 실패:', v.currentSrc, v.error && v.error.code);
+      var wrap = v.closest('.video-wrap');
+      var msg = wrap.querySelector('.video-error');
+      if (!msg) {
+        msg = document.createElement('p');
+        msg.className = 'video-error';
+        msg.style.cssText = 'color:#b42318;font-weight:bold;line-height:1.5';
+        wrap.appendChild(msg);
+      }
+      msg.textContent = '영상을 불러오지 못했습니다. 인터넷 연결과 배포된 video 폴더를 확인해주세요.';
+    });
     v.addEventListener('loadedmetadata', function () {
       var expected = parseFloat(v.dataset.duration);
       if (expected && Math.abs(v.duration - expected) > 1) {
@@ -157,7 +169,7 @@
     btn.textContent = '영상닫기';
     video.muted = true;
     var p = video.play();
-    if (p && p.catch) { p.catch(function () { btn.textContent = '재생 버튼을 눌러주세요'; }); }
+    if (p && p.catch) { p.catch(function () { video.controls = true; }); }
   }
 
   buttons.forEach(function (btn) {
